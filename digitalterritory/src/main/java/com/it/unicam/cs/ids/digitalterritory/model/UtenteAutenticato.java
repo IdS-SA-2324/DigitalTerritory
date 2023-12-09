@@ -1,4 +1,4 @@
-package com.it.unicam.cs.ids.digitalterritory.models;
+package com.it.unicam.cs.ids.digitalterritory.model;
 
 public abstract class UtenteAutenticato {
     protected String nome;
