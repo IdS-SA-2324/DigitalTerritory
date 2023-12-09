@@ -1,6 +1,9 @@
 package com.it.unicam.cs.ids.digitalterritory.model;
 
+import java.util.UUID;
+
 public abstract class UtenteAutenticato {
+    protected UUID id;
     protected String nome;
     protected String cognome;
     protected String email;
@@ -36,5 +39,9 @@ public abstract class UtenteAutenticato {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public UUID getId() {
+        return id;
     }
 }

@@ -1,6 +1,8 @@
 package com.it.unicam.cs.ids.digitalterritory.controllers;
 
+import java.util.List;
+
 public class ControllerContenuto {
-    public Object getContenuti(){return null;}
+    public List<Object> getContenuti(){return null;}
 
 }

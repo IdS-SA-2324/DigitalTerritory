@@ -7,5 +7,5 @@ public class Curatore extends UtenteAutenticato{
 
     private void verificaContenuti(){
 
-    };
+    }
 }
