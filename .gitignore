@@ -1,2 +1,5 @@
 DigTer_Model/*.vpp.bak_000f
 DigTer_Model/*.vpp.bak_*
+DigTer_Model/*.vpp.lck
+DigTer_Model/*.local.vpp
+.DS_STORE
