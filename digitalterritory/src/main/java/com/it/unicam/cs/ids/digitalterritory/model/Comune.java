@@ -10,6 +10,13 @@ public class Comune {
     private String regione;
     private Coordinate coordinate;
 
+    public Comune(UUID id, String nome, String regione, Coordinate coordinate){
+        this.id=id;
+        this.nome=nome;
+        this.regione=regione;
+        this.coordinate=coordinate;
+    }
+
     public UUID getId() {
         return id;
     }
