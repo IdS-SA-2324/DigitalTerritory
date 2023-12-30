@@ -1,14 +1,40 @@
 package com.it.unicam.cs.ids.digitalterritory.model;
 
+import java.util.List;
 import java.util.UUID;
 
 public class Contest {
-    private UUID id;
+    private int id;
     private String nome;
 
     private String data;
 
-    public UUID getId() {
+    private String obbiettivo;
+
+    private boolean isClosed;
+
+    private List<PuntoInteresse> contributi;
+
+    private List<Contributor> partecipantiInvitati;
+
+    public Contest(int id, String nome, String data, String obbiettivo){
+        this.id=id;
+        this.nome=nome;
+        this.data=data;
+        this.isClosed=false;
+        this.obbiettivo=obbiettivo;
+    }
+
+    public Contest(int id, String nome, String data, String obbiettivo,List<Contributor> partecipantiInvitati){
+        this.id=id;
+        this.nome=nome;
+        this.data=data;
+        this.isClosed=false;
+        this.partecipantiInvitati=partecipantiInvitati;
+        this.obbiettivo=obbiettivo;
+    }
+
+    public int getId() {
         return id;
     }
 
@@ -26,5 +52,29 @@ public class Contest {
 
     public void setData(String data) {
         this.data = data;
+    }
+
+    public boolean getIfClosed(){
+        return this.isClosed;
+    }
+
+    public void setClosed(){
+        this.isClosed=true;
+    }
+
+    public List<Contributor> getPartecipanti(){
+        return this.partecipantiInvitati;
+    }
+
+    public String getObbiettivo(){
+        return this.obbiettivo;
+    }
+
+    public List<PuntoInteresse> getContributi(){
+        return this.contributi;
+    }
+
+    public void addContenuto(PuntoInteresse puntoInteresse){
+        this.contributi.add(puntoInteresse);
     }
 }
