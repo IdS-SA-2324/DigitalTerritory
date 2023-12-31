@@ -17,7 +17,7 @@ public class Contest {
 
     private List<Contributor> partecipantiInvitati;
 
-    public Contest(int id, String nome, String data, String obbiettivo){
+    public Contest(int id, String nome, String data, String obbiettivo,Comune comune){
         this.id=id;
         this.nome=nome;
         this.data=data;

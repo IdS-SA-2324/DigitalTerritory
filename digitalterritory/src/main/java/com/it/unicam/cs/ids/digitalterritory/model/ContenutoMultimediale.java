@@ -2,7 +2,7 @@ package com.it.unicam.cs.ids.digitalterritory.model;
 
 import java.util.UUID;
 
-public class Contenuto {
+public class ContenutoMultimediale {
     private String stato;
     private String attribute;
     private UUID id;
