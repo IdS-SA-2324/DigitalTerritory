@@ -2,12 +2,14 @@ package it.unicam.cs.ids.digitalterritory.db.entities;
 
 import it.unicam.cs.ids.digitalterritory.db.enums.StatoApprovazione;
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
 @Table(name = "punti_interesse")
+@Data
 public class PuntoInteresse {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -29,6 +31,11 @@ public class PuntoInteresse {
     private Set<Contenuto> contenuti;
     @OneToMany(mappedBy = "poi")
     private Set<SegnalazionePoi> segnalazioni;
+    @ManyToMany
+    private Set<Itinerario> itinerari;
+    @ManyToOne
+    @JoinColumn(name = "contest_id", nullable = true)
+    private Contest contest;
 
     public PuntoInteresse() {}
 }

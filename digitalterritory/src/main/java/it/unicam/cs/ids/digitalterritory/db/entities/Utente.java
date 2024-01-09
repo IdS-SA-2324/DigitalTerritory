@@ -36,4 +36,6 @@ public class Utente {
     private Set<SegnalazionePoi> segnalazioniPoi;
     @OneToMany(mappedBy = "utente")
     private Set<SegnalazioneContenuto> segnalazioniContenuti;
+    @OneToMany(mappedBy = "creatore")
+    private Set<Itinerario> itinerari;
 }

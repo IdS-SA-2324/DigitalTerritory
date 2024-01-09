@@ -12,6 +12,7 @@ import it.unicam.cs.ids.digitalterritory.dto.Response;
 import it.unicam.cs.ids.digitalterritory.security.JwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,7 +48,7 @@ public class AuthController {
         this.jwtGenerator = jwtGenerator;
     }
 
-    @PostMapping("login")
+    @PostMapping(value = "login", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Metodo per autenticare un utente")
     public ResponseEntity<Response<AuthDto>> login(@RequestBody LoginDto loginDto) {
         if(!isValidEmail(loginDto.email())) {
@@ -62,8 +64,13 @@ public class AuthController {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtGenerator.generateToken(authentication);
-        AuthDto response = new AuthDto(loginDto.email(), TipoUtente.TuristaAutenticato, token, UUID.fromString("00000000-0000-0000-0000-000000000000"));
-        return new ResponseEntity<>(new Response<>(response, true, ""),
+        Optional<Utente> utente = userRepository.findByEmail(loginDto.email());
+        if(utente.isPresent()) {
+            AuthDto response = new AuthDto(loginDto.email(), utente.get().getTipoUtente(), token, utente.get().getId());
+            return new ResponseEntity<>(new Response<>(response, true, ""),
+                    HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new Response<>(null, false, "Utente non esistente"),
                 HttpStatus.OK);
     }
 
@@ -90,8 +97,12 @@ public class AuthController {
         // all'inizio lo imposto come turista autenticato
         user.setTipoUtente(TipoUtente.TuristaAutenticato);
         Utente saved = userRepository.save(user);
-//        String token = jwtGenerator.generateToken( );
-        AuthDto response = new AuthDto(saved.getEmail(), saved.getTipoUtente(), "", saved.getId());
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(saved.getEmail(), saved.getPassword())
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token = jwtGenerator.generateToken(authentication);
+        AuthDto response = new AuthDto(saved.getEmail(), saved.getTipoUtente(), token, saved.getId());
         return new ResponseEntity<>(new Response<>(response, false, ""),
                 HttpStatus.OK);
     }
