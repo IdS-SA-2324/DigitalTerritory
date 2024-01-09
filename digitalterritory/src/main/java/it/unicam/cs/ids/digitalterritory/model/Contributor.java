@@ -2,12 +2,15 @@ package it.unicam.cs.ids.digitalterritory.model;
 
 import it.unicam.cs.ids.digitalterritory.services.OsmService;
 import it.unicam.cs.ids.digitalterritory.utils.Coordinate;
+import it.unicam.cs.ids.digitalterritory.utils.PointContained;
 
 public class Contributor extends UtenteAutenticato{
 
-    private String regione;
-    private String comune;
+    private String regione; //regione di residenza del contributor
+    private String comune; //comune di residenza del contributor
     private boolean isAutorizzato;
+
+
 
     public boolean isAutorizzato() {
         return isAutorizzato;
@@ -22,14 +25,13 @@ public class Contributor extends UtenteAutenticato{
         System.out.println(message);
     }
 
-    public void creaPIPerContest(Contest contest){
-        PuntoInteresse puntoInteresse=new PuntoInteresse(); //crea un punto di interesse e lo aggiunge
-        contest.addContenuto(puntoInteresse);
-    }
 
     public void caricaPuntoInteresse(String nome, int tipologia, Coordinate coordinate) throws Exception {
         OsmService osm = new OsmService();
-        System.out.println(osm.getComuneByNomeRegione(this.nome,this.regione).getBoundingBox());
+        PointContained point = new PointContained(coordinate,osm.getComuneByNomeRegione(this.comune,this.regione).getGeoJson().getCoordinates().get(0));
+        if(point.isPointContained()){
+            PuntoInteresse nuovo= new PuntoInteresse(nome,tipologia,coordinate);
+        }
 
     }
 }

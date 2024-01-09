@@ -12,6 +12,13 @@ public class PuntoInteresse {
 
     private Coordinate coordinate;
 
+
+    public PuntoInteresse(String nome, int tipologia, Coordinate coordinate){
+        this.nome=nome;
+        this.tipologia= tipologia;
+        this.coordinate=coordinate;
+    }
+
     public UUID getId() {
         return id;
     }
