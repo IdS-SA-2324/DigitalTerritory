@@ -1,5 +1,7 @@
 package it.unicam.cs.ids.digitalterritory.model;
 
+import it.unicam.cs.ids.digitalterritory.utils.PuntoInteresse;
+
 import java.util.UUID;
 
 public class Segnalazione {

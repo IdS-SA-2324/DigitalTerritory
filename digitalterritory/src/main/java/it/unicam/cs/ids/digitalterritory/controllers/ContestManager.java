@@ -3,7 +3,7 @@ package it.unicam.cs.ids.digitalterritory.controllers;
 import it.unicam.cs.ids.digitalterritory.model.Comune;
 import it.unicam.cs.ids.digitalterritory.model.Contest;
 import it.unicam.cs.ids.digitalterritory.model.Contributor;
-import it.unicam.cs.ids.digitalterritory.model.PuntoInteresse;
+import it.unicam.cs.ids.digitalterritory.utils.PuntoInteresse;
 
 import java.util.List;
 
