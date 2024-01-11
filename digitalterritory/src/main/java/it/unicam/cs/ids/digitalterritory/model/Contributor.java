@@ -3,6 +3,7 @@ package it.unicam.cs.ids.digitalterritory.model;
 import it.unicam.cs.ids.digitalterritory.services.OsmService;
 import it.unicam.cs.ids.digitalterritory.utils.Coordinate;
 import it.unicam.cs.ids.digitalterritory.utils.PointContained;
+import it.unicam.cs.ids.digitalterritory.utils.PuntoInteresse;
 
 public class Contributor extends UtenteAutenticato{
 

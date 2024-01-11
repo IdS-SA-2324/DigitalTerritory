@@ -1,6 +1,7 @@
 package it.unicam.cs.ids.digitalterritory.model;
 
 import it.unicam.cs.ids.digitalterritory.controllers.ContestManager;
+import it.unicam.cs.ids.digitalterritory.utils.PuntoInteresse;
 
 import java.util.List;
 

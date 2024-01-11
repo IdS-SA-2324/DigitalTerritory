@@ -1,4 +1,4 @@
-package it.unicam.cs.ids.digitalterritory.model;
+package it.unicam.cs.ids.digitalterritory.utils;
 
 import it.unicam.cs.ids.digitalterritory.utils.Coordinate;
 
