@@ -13,7 +13,7 @@ public class OsmResponse {
     @JsonProperty("osm_type")
     private String osmType;
     @JsonProperty("osm_id")
-    private int osmId;
+    private long osmId;
     private String lat;
     private String lon;
     private String category;

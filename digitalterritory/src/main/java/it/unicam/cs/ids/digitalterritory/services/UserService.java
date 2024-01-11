@@ -33,7 +33,7 @@ public class UserService {
 
     public Response<Boolean> abilitaComuneCuratore(AbilitaComuneCuratoreDto request) {
         try {
-            OsmResponse comuneOsm = osmService.getComuneByNomeRegione(request.nomeComune(), request.nomeComune());
+            OsmResponse comuneOsm = osmService.getComuneByNomeRegione(request.nomeComune(), request.nomeRegione());
             Boolean alreadyExistUser = utenteRepository.existsByEmail(request.curatore().email());
             if(alreadyExistUser) {
                 return new Response<>(false, false, "Esiste già un utente con quella mail");
