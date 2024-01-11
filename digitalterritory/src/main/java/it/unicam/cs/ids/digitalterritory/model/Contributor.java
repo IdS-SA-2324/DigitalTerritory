@@ -29,11 +29,11 @@ public class Contributor extends UtenteAutenticato{
 
     public void caricaPuntoInteresse(String nome, int tipologia, Coordinate coordinate) throws Exception {
         OsmService osm = new OsmService();
-        PointContained point = new PointContained(coordinate,osm.getComuneByNomeRegione(this.comune,this.regione).getGeoJson().getCoordinates().get(0));
-
-        if(point.isPointContained()){
-            PuntoInteresse nuovo= new PuntoInteresse(nome,tipologia,coordinate);
-        }
+//        PointContained point = new PointContained(coordinate,osm.getComuneByNomeRegione(this.comune,this.regione).getGeoJson().getCoordinates().get(0));
+//
+//        if(point.isPointContained()){
+//            PuntoInteresse nuovo= new PuntoInteresse(nome,tipologia,coordinate);
+//        }
 
     }
 }

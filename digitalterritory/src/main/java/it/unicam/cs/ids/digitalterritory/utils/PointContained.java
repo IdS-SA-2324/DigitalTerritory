@@ -15,7 +15,7 @@ public class PointContained {
     private ArrayList<Double> polygonX= new ArrayList<>();
     private ArrayList<Double> polygonY= new ArrayList<>();
 
-    public PointContained(Coordinate coordinate, ArrayList<ArrayList<Double>> listVertici) {
+    public PointContained(Coordinate coordinate, List<ArrayList<Double>> listVertici) {
         this.coordinate = coordinate;
 
         for (int i = 0; i < listVertici.size(); i++) {
@@ -40,6 +40,7 @@ public class PointContained {
             if ((this.polygonY.get(i) > this.coordinate.latitude()) != (this.polygonY.get(j) > this.coordinate.latitude()) &&
                     (this.coordinate.longitude() < (this.polygonX.get(j) - polygonX.get(i)) * (this.coordinate.latitude() - this.polygonY.get(i)) / (this.polygonY.get(j) - this.polygonY.get(i)) + polygonX.get(i))) {
                 isInside = true;
+                break;
             }
         }
 
@@ -47,10 +48,10 @@ public class PointContained {
     }
 
     public void getLongitude(){
-        this.polygonX.forEach((x) -> System.out.println(x));
+        this.polygonX.forEach(System.out::println);
     }
 
     public void getLatitude(){
-        this.polygonY.forEach((y) -> System.out.println(y));
+        this.polygonY.forEach(System.out::println);
     }
 }

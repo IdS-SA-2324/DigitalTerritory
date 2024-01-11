@@ -8,12 +8,12 @@ import java.util.ArrayList;
 @Data
 public class OsmResponse {
     @JsonProperty("place_id")
-    private int placeId;
+    private long placeId;
     private String licence;
     @JsonProperty("osm_type")
     private String osmType;
     @JsonProperty("osm_id")
-    private int osmId;
+    private long osmId;
     private String lat;
     private String lon;
     private String category;
