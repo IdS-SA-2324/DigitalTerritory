@@ -22,6 +22,6 @@ public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         response.setContentType("application/json");
-        response.getOutputStream().println("{ \"error\": \"" + authException.getMessage() + "\", \"stacktrace\": " + Arrays.toString(authException.getStackTrace()) + " }");
+        response.getOutputStream().println("{ \"error\": \"" + authException.getMessage() + "\" }");
     }
 }

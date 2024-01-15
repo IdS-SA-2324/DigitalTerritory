@@ -23,7 +23,7 @@ public class TestController {
     @RequestMapping(value = "/test", method = RequestMethod.GET)
     public ResponseEntity<Object> test() {
         try {
-            OsmResponse osm = osmService.getComuneByNomeRegione("Camerino", "Marche");
+            OsmResponse osm = osmService.getComuneByNomeRegione("Montone", "Perugia");
             return new ResponseEntity<>(osm, HttpStatus.OK);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -31,18 +31,12 @@ public class TestController {
     }
 
     @RequestMapping(value = "/test2", method = RequestMethod.GET)
-    public ResponseEntity<Object> test2(@RequestHeader("Authorization") String header) {
-        // controllo per ottenere il token dall'header della chiamata
-        if(header != null && header.startsWith("Bearer ")) {
-            String jwtToken = header.substring(7);
-            return new ResponseEntity<>(jwt.getEmailFromJwt(jwtToken), HttpStatus.OK);
+    public ResponseEntity<Object> test2() {
+        try {
+            OsmDetails osm = osmService.getComuneById("R42428");
+            return new ResponseEntity<>(osm, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return null;
-//        try {
-//            OsmDetails osm = osmService.getComuneById(99704152);
-//            return new ResponseEntity<>(osm, HttpStatus.OK);
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
     }
 }

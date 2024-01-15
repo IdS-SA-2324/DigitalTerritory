@@ -8,5 +8,6 @@ import java.util.List;
 @Data
 public class Geojson{
     private String type;
-    private Object coordinates;
+//    private Object coordinates;
+    private List<List<List<Double>>> coordinates;
 }

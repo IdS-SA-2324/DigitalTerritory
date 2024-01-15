@@ -1,37 +1,46 @@
 package it.unicam.cs.ids.digitalterritory.apicontroller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import it.unicam.cs.ids.digitalterritory.db.entities.Comune;
 import it.unicam.cs.ids.digitalterritory.db.entities.PuntoInteresse;
+import it.unicam.cs.ids.digitalterritory.db.repositories.ComuneRepository;
 import it.unicam.cs.ids.digitalterritory.db.repositories.PuntoInteresseRepository;
 import it.unicam.cs.ids.digitalterritory.dto.OsmResponse;
+import it.unicam.cs.ids.digitalterritory.dto.Response;
+import it.unicam.cs.ids.digitalterritory.dto.poi.PuntoInteresseDto;
+import it.unicam.cs.ids.digitalterritory.services.PuntiInteresseService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping(name = "/api/puntiinteresse")
+@Tag(name = "Punti Interesse")
 public class PuntiInteresseController {
-    private final PuntoInteresseRepository repository;
+    private final PuntiInteresseService poiService;
 
     @Autowired
-    public PuntiInteresseController(PuntoInteresseRepository repository) {
-        this.repository = repository;
+    public PuntiInteresseController(PuntiInteresseService poi) {
+        this.poiService = poi;
     }
 
-    @RequestMapping(value = "/test", method = RequestMethod.GET)
-    public ResponseEntity<Object> test() {
-//        try {
-//            OsmResponse osm = osmService.getComuneByNomeRegione("Camerino", "Marche");
-//            return new ResponseEntity<>(osm, HttpStatus.OK);
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-        return null;
-    }
+//    @GetMapping(value = "/test")
+//    public ResponseEntity<Object> test() {
+//        Comune c = comuneRepository.getComuneByNome("Montone").orElse(new Comune());
+//
+//        return new ResponseEntity<>(c.getPuntiInteresse().stream().map(PuntoInteresse::getNome).toList(), HttpStatus.OK);
+//    }
 
-    @RequestMapping(value = "/checkpoicomune", method = RequestMethod.POST)
-    public ResponseEntity<Object> checkPoiComune() {
-        // logica
-        return null;
+    @PostMapping(value = "/CaricaPuntoInteresse")
+    public ResponseEntity<Response<Boolean>> checkPoiComune(@RequestBody()PuntoInteresseDto dto, HttpServletRequest req) {
+        try {
+            return new ResponseEntity<>(poiService.inserisciPuntoInteresse(dto, req.getHeader("Authorization")), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new Response<>(false, false, e.getMessage()), HttpStatus.OK);
+        }
     }
 }

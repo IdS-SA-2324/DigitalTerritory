@@ -3,6 +3,7 @@ package it.unicam.cs.ids.digitalterritory.db.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -18,12 +19,12 @@ public class Comune {
     @Column
     private String regione;
     @Column
-    private long placeOsmId;
+    private String placeOsmId;
     @OneToOne(mappedBy = "comune")
     private Utente curatore;
 
-    @OneToMany(mappedBy = "comune")
-    private Set<PuntoInteresse> puntiInteresse;
+    @OneToMany(mappedBy = "comune",fetch = FetchType.EAGER)
+    private List<PuntoInteresse> puntiInteresse;
 
     public Comune() {}
 }

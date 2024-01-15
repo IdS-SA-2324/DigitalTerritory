@@ -1,6 +1,8 @@
 package it.unicam.cs.ids.digitalterritory.db.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import it.unicam.cs.ids.digitalterritory.db.enums.StatoApprovazione;
+import it.unicam.cs.ids.digitalterritory.db.enums.TipologiaTipoInteresse;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,7 +19,8 @@ public class PuntoInteresse {
     @Column
     private String nome;
     @Column
-    private int tipologia;
+    @Enumerated(EnumType.STRING)
+    private TipologiaTipoInteresse tipologia;
     @Column
     private String coordinate;
     @Column
