@@ -40,26 +40,26 @@ public class UserService {
 
     public Response<Boolean> abilitaComuneCuratore(AbilitaComuneCuratoreDto request) {
         try {
-            OsmResponse comuneOsm = osmService.getComuneByNomeRegione(request.nomeComune(), request.nomeRegione());
-            Boolean alreadyExistUser = utenteRepository.existsByEmail(request.curatore().email());
+            var comuneOsm = osmService.getComuneByNomeRegione(request.nomeComune(), request.nomeRegione());
+            var alreadyExistUser = utenteRepository.existsByEmail(request.curatore().email());
             if(alreadyExistUser) {
                 return new Response<>(false, false, "Esiste già un utente con quella mail");
             }
-            Utente utente = new Utente();
+            var utente = new Utente();
             utente.setNome(request.curatore().nome());
             utente.setCognome(request.curatore().cognome());
             utente.setTipoUtente(TipoUtente.Curatore);
             utente.setPassword(passwordEncoder.encode(request.curatore().password()));
             utente.setEmail(request.curatore().email());
             // salvo l'utente
-            Utente saved = utenteRepository.save(utente);
+            var saved = utenteRepository.save(utente);
             Comune comune = new Comune();
             comune.setCuratore(saved);
             comune.setNome(comuneOsm.getName());
             comune.setRegione(request.nomeRegione());
             comune.setPlaceOsmId(String.format("%s%d", comuneOsm.getOsmType().toUpperCase().charAt(0), comuneOsm.getPlaceId()));
             // salvo il comune
-            Comune cSaved = comuneRepository.save(comune);
+            var cSaved = comuneRepository.save(comune);
             saved.setComune(cSaved);
             utenteRepository.save(saved);
             return new Response<>(true, true, "");

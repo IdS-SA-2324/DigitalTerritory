@@ -31,7 +31,7 @@ public class PuntoInteresse {
     @JoinColumn(name = "comune_id", nullable = false)
     private Comune comune;
 
-    @OneToMany(mappedBy = "poi")
+    @OneToMany(mappedBy = "poi",fetch = FetchType.EAGER)
     private List<Contenuto> contenuti;
     @OneToMany(mappedBy = "poi")
     private List<SegnalazionePoi> segnalazioni;

@@ -23,11 +23,15 @@ public class Contenuto {
     private TipoContenuto tipoContenuto;
     @Column
     private String textContent;
-    @Lob
-    private Blob fileContent;
+    @Column // lo salvo come base64
+    private String fileContent;
 
     @ManyToOne
     @JoinColumn(name = "poi_id", nullable = false)
     private PuntoInteresse poi;
+
+    @ManyToOne
+    @JoinColumn(name = "utente_id", nullable = false)
+    private Utente creatore;
 
 }
