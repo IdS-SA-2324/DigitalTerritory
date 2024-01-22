@@ -6,6 +6,7 @@ import it.unicam.cs.ids.digitalterritory.db.enums.TipologiaTipoInteresse;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,11 +32,11 @@ public class PuntoInteresse {
     private Comune comune;
 
     @OneToMany(mappedBy = "poi")
-    private Set<Contenuto> contenuti;
+    private List<Contenuto> contenuti;
     @OneToMany(mappedBy = "poi")
-    private Set<SegnalazionePoi> segnalazioni;
+    private List<SegnalazionePoi> segnalazioni;
     @ManyToMany
-    private Set<Itinerario> itinerari;
+    private List<Itinerario> itinerari;
     @ManyToOne
     @JoinColumn(name = "contest_id", nullable = true)
     private Contest contest;

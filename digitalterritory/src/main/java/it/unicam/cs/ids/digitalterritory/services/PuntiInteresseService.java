@@ -9,10 +9,13 @@ import it.unicam.cs.ids.digitalterritory.db.repositories.ComuneRepository;
 import it.unicam.cs.ids.digitalterritory.db.repositories.PuntoInteresseRepository;
 import it.unicam.cs.ids.digitalterritory.db.repositories.UtenteRepository;
 import it.unicam.cs.ids.digitalterritory.dto.Response;
+import it.unicam.cs.ids.digitalterritory.dto.contenuti.ContenutoDto;
 import it.unicam.cs.ids.digitalterritory.dto.osmdetails.OsmDetails;
 import it.unicam.cs.ids.digitalterritory.dto.poi.PuntoInteresseDto;
 import it.unicam.cs.ids.digitalterritory.security.JwtGenerator;
+import it.unicam.cs.ids.digitalterritory.utils.Coordinate;
 import it.unicam.cs.ids.digitalterritory.utils.PointContained;
+import it.unicam.cs.ids.digitalterritory.utils.ResponseFactory;
 import it.unicam.cs.ids.digitalterritory.utils.UserTypeCheck;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,17 +44,17 @@ public class PuntiInteresseService {
 
     public Response<Boolean> inserisciPuntoInteresse(PuntoInteresseDto dto, String jwtToken) throws Exception {
         if(!checkUserCanUploadPoi(jwtToken)) {
-            return new Response<>(false, false, "Non hai le autorizzazioni per caricare un Punto di Interesse");
+            return ResponseFactory.createFromResult(false, false, "Non hai le autorizzazioni per caricare un Punto di Interesse");
         }
         Utente user = this.getUtenteFromToken(jwtToken);
         Comune comune = this.getComuneOfUser(user);
         OsmDetails osm = this.getDetailsFromOsm(comune);
         PointContained pc = new PointContained();
         if(!pc.isInsideBoundingBox(dto.coordinate().latitude(), dto.coordinate().longitude(), osm.getGeometry().getCoordinates())) {
-            return new Response<>(false, false, "Il punto selezionato è fuori dal tuo comune");
+            return ResponseFactory.createFromResult(false, false, "Il punto selezionato è fuori dal tuo comune");
         }
         this.salvaPoi(comune, dto, user);
-        return new Response<>(true, true, "");
+        return ResponseFactory.createFromResult(true);
     }
 
     private void addPoiToComune(Comune comune, PuntoInteresse poi) {
@@ -91,5 +94,25 @@ public class PuntiInteresseService {
     private boolean checkUserCanUploadPoi(String token) {
         return userTypeChecker.isUserType(token, TipoUtente.Curatore) || userTypeChecker.isUserType(token, TipoUtente.Contributor)
                 || userTypeChecker.isUserType(token, TipoUtente.ContributorAutorizzato);
+    }
+
+    public Response<List<PuntoInteresseDto>> getAllPoiOfComune(String comune) {
+        var comuneEntity = comuneRepository.getComuneByNomeIgnoreCase(comune);
+        if(comuneEntity.isEmpty()) {
+            return new Response<>(new ArrayList<>(), false, "");
+        }
+        var pois = comuneEntity.get()
+                .getPuntiInteresse()
+                .stream()
+                .map(x -> {
+                    // prendo solo i contenuti approvati
+                    var contenuti = x.getContenuti().stream()
+                            .filter(y -> y.getStatoApprovazione() == StatoApprovazione.Approvato)
+                            .map(y -> new ContenutoDto(y.getStatoApprovazione(), y.getTipoContenuto(), y.getTextContent()))
+                            .toList();
+                    return new PuntoInteresseDto(x.getNome(), x.getTipologia(), Coordinate.fromString(x.getCoordinate()), contenuti);
+                })
+                .toList();
+        return ResponseFactory.createFromResult(pois);
     }
 }

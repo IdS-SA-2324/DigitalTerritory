@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 @NoArgsConstructor
@@ -33,9 +34,9 @@ public class Utente {
     @JoinColumn(name = "comune_id", referencedColumnName = "id")
     private Comune comune;
     @OneToMany(mappedBy = "utente")
-    private Set<SegnalazionePoi> segnalazioniPoi;
+    private List<SegnalazionePoi> segnalazioniPoi;
     @OneToMany(mappedBy = "utente")
-    private Set<SegnalazioneContenuto> segnalazioniContenuti;
+    private List<SegnalazioneContenuto> segnalazioniContenuti;
     @OneToMany(mappedBy = "creatore")
-    private Set<Itinerario> itinerari;
+    private List<Itinerario> itinerari;
 }

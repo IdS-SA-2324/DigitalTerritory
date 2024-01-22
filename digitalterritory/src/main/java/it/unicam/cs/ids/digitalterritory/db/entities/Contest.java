@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,5 +25,5 @@ public class Contest {
     @Column
     private boolean isClosed;
     @OneToMany(mappedBy = "contest")
-    private Set<PuntoInteresse> puntiInteresse;
+    private List<PuntoInteresse> puntiInteresse;
 }

@@ -5,4 +5,10 @@ public record Coordinate(double longitude, double latitude) {
     public String toString() {
         return String.format("%f-%f", longitude, latitude);
     }
+
+    public static Coordinate fromString(String coordinate) {
+        var splitted = coordinate.replace(',','.').split("-");
+        return new Coordinate(Double.parseDouble(splitted[0]),
+                Double.parseDouble(splitted[1]));
+    }
 }

@@ -15,10 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(name = "/api/puntiinteresse")
+@RequestMapping("/api/puntiinteresse")
 @Tag(name = "Punti Interesse")
 public class PuntiInteresseController {
     private final PuntiInteresseService poiService;
@@ -34,6 +36,16 @@ public class PuntiInteresseController {
 //
 //        return new ResponseEntity<>(c.getPuntiInteresse().stream().map(PuntoInteresse::getNome).toList(), HttpStatus.OK);
 //    }
+
+    @GetMapping("VisualizzaPuntiInteresse/{comune}")
+    public Response<List<PuntoInteresseDto>> getAllPuntiInteresseOfComune(@PathVariable String comune) {
+        try {
+            var result = poiService.getAllPoiOfComune(comune);
+            return result;
+        } catch (Exception e) {
+            return new Response<>(new ArrayList<>(), false, e.getMessage());
+        }
+    }
 
     @PostMapping(value = "/CaricaPuntoInteresse")
     public ResponseEntity<Response<Boolean>> checkPoiComune(@RequestBody()PuntoInteresseDto dto, HttpServletRequest req) {
