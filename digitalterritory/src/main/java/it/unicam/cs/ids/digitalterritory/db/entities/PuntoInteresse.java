@@ -40,6 +40,11 @@ public class PuntoInteresse {
     @ManyToOne
     @JoinColumn(name = "contest_id", nullable = true)
     private Contest contest;
+    @ManyToOne
+    @JoinColumn(name = "creatore_id", nullable = true)
+    private Utente creatore;
+
+
 
     public PuntoInteresse() {}
 }

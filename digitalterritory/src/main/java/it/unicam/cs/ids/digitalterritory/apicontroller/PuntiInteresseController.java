@@ -3,12 +3,17 @@ package it.unicam.cs.ids.digitalterritory.apicontroller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.unicam.cs.ids.digitalterritory.db.entities.Comune;
 import it.unicam.cs.ids.digitalterritory.db.entities.PuntoInteresse;
+import it.unicam.cs.ids.digitalterritory.db.enums.StatoApprovazione;
+import it.unicam.cs.ids.digitalterritory.db.enums.TipoContenuto;
 import it.unicam.cs.ids.digitalterritory.db.repositories.ComuneRepository;
 import it.unicam.cs.ids.digitalterritory.db.repositories.PuntoInteresseRepository;
 import it.unicam.cs.ids.digitalterritory.dto.OsmResponse;
 import it.unicam.cs.ids.digitalterritory.dto.Response;
+import it.unicam.cs.ids.digitalterritory.dto.poi.InfoDaApprovareDto;
 import it.unicam.cs.ids.digitalterritory.dto.poi.PuntoInteresseDto;
+import it.unicam.cs.ids.digitalterritory.dto.poi.TipoInformazione;
 import it.unicam.cs.ids.digitalterritory.services.PuntiInteresseService;
+import it.unicam.cs.ids.digitalterritory.utils.ResponseFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -53,6 +58,24 @@ public class PuntiInteresseController {
             return new ResponseEntity<>(poiService.inserisciPuntoInteresse(dto, req.getHeader("Authorization")), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new Response<>(false, false, e.getMessage()), HttpStatus.OK);
+        }
+    }
+
+    @GetMapping(value = "/VisualizzaInfoDaApprovare")
+    public Response<List<InfoDaApprovareDto>> visualizzaInfoDaApprovare(HttpServletRequest req) {
+        try {
+            return poiService.visualizzaInfoDaApprovare(req.getHeader("Authorization"));
+        } catch (Exception e) {
+            return ResponseFactory.createFromResult(null, false, "C'è stato un errore. Riprova");
+        }
+    }
+
+    @PostMapping(value = "/CambiaStatoValutazione/{id}/{stato}/{tipo}")
+    public Response<Boolean> cambiaStatoValutazione(@PathVariable UUID id, @PathVariable StatoApprovazione stato, @PathVariable TipoInformazione tipo) {
+        try {
+            return poiService.cambiaStatoApprovazione(id, stato, tipo);
+        } catch (Exception e) {
+            return ResponseFactory.createFromResult(false, false, "C'è stato un errore. Riprova");
         }
     }
 }

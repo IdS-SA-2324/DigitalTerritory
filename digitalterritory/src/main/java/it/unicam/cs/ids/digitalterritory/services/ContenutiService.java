@@ -9,6 +9,7 @@ import it.unicam.cs.ids.digitalterritory.db.repositories.ContenutoRepository;
 import it.unicam.cs.ids.digitalterritory.db.repositories.PuntoInteresseRepository;
 import it.unicam.cs.ids.digitalterritory.db.repositories.UtenteRepository;
 import it.unicam.cs.ids.digitalterritory.dto.Response;
+import it.unicam.cs.ids.digitalterritory.dto.contenuti.ContenutoDto;
 import it.unicam.cs.ids.digitalterritory.dto.contenuti.UploadContenutoDto;
 import it.unicam.cs.ids.digitalterritory.security.JwtGenerator;
 import it.unicam.cs.ids.digitalterritory.utils.ResponseFactory;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -64,8 +66,8 @@ public class ContenutiService {
         contenuto.setTipoContenuto(dto.tipoContenuto());
         contenuto.setCreatore(utente);
         contenuto.setPoi(poi);
-        // all'inizio è da approvare
-        if(utente.getTipoUtente() == TipoUtente.ContributorAutorizzato || utente.getTipoUtente() == TipoUtente.Curatore) {
+        // se il contenuto è privato allora lo metto subito come approvato
+        if((utente.getTipoUtente() == TipoUtente.ContributorAutorizzato || utente.getTipoUtente() == TipoUtente.Curatore) && !dto.isPrivato()) {
             contenuto.setStatoApprovazione(StatoApprovazione.Approvato);
         } else {
             contenuto.setStatoApprovazione(StatoApprovazione.DaApprovare);
@@ -73,9 +75,9 @@ public class ContenutiService {
         if(dto.fileContent() == null && !dto.textContent().isEmpty()) {
             contenuto.setTextContent(dto.textContent());
         } else if(dto.fileContent() != null) {
-            var base64 = Base64.getEncoder().encodeToString(dto.fileContent().getBytes());
-            contenuto.setFileContent(base64);
+            contenuto.setFileContent(dto.fileContent());
         }
+        contenuto.setPrivato(dto.isPrivato());
         return contenuto;
     }
 
@@ -83,6 +85,20 @@ public class ContenutiService {
         String email = jwt.getEmailFromJwt(token.substring(7));
         Optional<Utente> utente = utenteRepository.findByEmail(email);
         return utente.orElse(null);
+    }
+
+    public Response<List<ContenutoDto>> visualizzaContenutiPrivati(String token) {
+        var utente = this.getUtenteFromToken(token);
+        var contenuti = contenutoRepository
+                .getByCreatoreId(utente.getId())
+                .stream()
+                .filter(Contenuto::isPrivato)
+                .map(x -> {
+                    var poi = x.getPoi();
+                    return new ContenutoDto(StatoApprovazione.Approvato, x.getTipoContenuto(), x.getTextContent(), poi.getNome());
+                })
+                .toList();
+        return ResponseFactory.createFromResult(contenuti);
     }
 
     private boolean canUserUploadContenuto(String token) {

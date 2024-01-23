@@ -34,4 +34,7 @@ public class Contenuto {
     @JoinColumn(name = "utente_id", nullable = false)
     private Utente creatore;
 
+    @Column
+    private boolean isPrivato;
+
 }

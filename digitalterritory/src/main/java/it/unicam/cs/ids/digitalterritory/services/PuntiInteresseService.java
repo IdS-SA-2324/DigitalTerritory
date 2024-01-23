@@ -6,12 +6,15 @@ import it.unicam.cs.ids.digitalterritory.db.entities.Utente;
 import it.unicam.cs.ids.digitalterritory.db.enums.StatoApprovazione;
 import it.unicam.cs.ids.digitalterritory.db.enums.TipoUtente;
 import it.unicam.cs.ids.digitalterritory.db.repositories.ComuneRepository;
+import it.unicam.cs.ids.digitalterritory.db.repositories.ContenutoRepository;
 import it.unicam.cs.ids.digitalterritory.db.repositories.PuntoInteresseRepository;
 import it.unicam.cs.ids.digitalterritory.db.repositories.UtenteRepository;
 import it.unicam.cs.ids.digitalterritory.dto.Response;
 import it.unicam.cs.ids.digitalterritory.dto.contenuti.ContenutoDto;
 import it.unicam.cs.ids.digitalterritory.dto.osmdetails.OsmDetails;
+import it.unicam.cs.ids.digitalterritory.dto.poi.InfoDaApprovareDto;
 import it.unicam.cs.ids.digitalterritory.dto.poi.PuntoInteresseDto;
+import it.unicam.cs.ids.digitalterritory.dto.poi.TipoInformazione;
 import it.unicam.cs.ids.digitalterritory.security.JwtGenerator;
 import it.unicam.cs.ids.digitalterritory.utils.Coordinate;
 import it.unicam.cs.ids.digitalterritory.utils.PointContained;
@@ -30,15 +33,17 @@ public class PuntiInteresseService {
     private final JwtGenerator jwt;
     private final UtenteRepository utenteRepository;
     private final ComuneRepository comuneRepository;
+    private final ContenutoRepository contenutoRepository;
 
     @Autowired
-    public PuntiInteresseService(PuntoInteresseRepository repository, OsmService osmService, UserTypeCheck userTypeChecker, JwtGenerator jwt, UtenteRepository utenteRepository, ComuneRepository comuneRepository) {
+    public PuntiInteresseService(PuntoInteresseRepository repository, OsmService osmService, UserTypeCheck userTypeChecker, JwtGenerator jwt, UtenteRepository utenteRepository, ComuneRepository comuneRepository, ContenutoRepository contenutoRepository) {
         this.repository = repository;
         this.osmService = osmService;
         this.userTypeChecker = userTypeChecker;
         this.jwt = jwt;
         this.utenteRepository = utenteRepository;
         this.comuneRepository = comuneRepository;
+        this.contenutoRepository = contenutoRepository;
     }
 
 
@@ -107,7 +112,7 @@ public class PuntiInteresseService {
                 .map(x -> {
                     // prendo solo i contenuti approvati
                     var contenuti = x.getContenuti().stream()
-                            .filter(y -> y.getStatoApprovazione() == StatoApprovazione.Approvato)
+                            .filter(y -> y.getStatoApprovazione() == StatoApprovazione.Approvato && !y.isPrivato())
                             .map(y -> new ContenutoDto(y.getStatoApprovazione(), y.getTipoContenuto(), y.getTextContent()))
                             .toList();
                     return new PuntoInteresseDto(x.getNome(), x.getTipologia(), Coordinate.fromString(x.getCoordinate()), contenuti);
@@ -115,4 +120,53 @@ public class PuntiInteresseService {
                 .toList();
         return ResponseFactory.createFromResult(pois);
     }
+
+    public Response<List<InfoDaApprovareDto>> visualizzaInfoDaApprovare(String token) {
+        var utente = this.getUtenteFromToken(token);
+        if(utente == null || utente.getTipoUtente() != TipoUtente.Curatore) {
+            return new Response<>(new ArrayList<>(), false, "Non disponi delle autorizzazioni necessarie.");
+        }
+        var result = this.getInfoDaApprovareDto(utente);
+        result.sort(Comparator.comparing(InfoDaApprovareDto::tipo));
+        return ResponseFactory.createFromResult(result);
+    }
+
+    public Response<Boolean> cambiaStatoApprovazione(UUID id, StatoApprovazione stato, TipoInformazione tipo){
+        return switch (tipo) {
+            case POI -> cambiaStatoApprovazionePoi(id, stato);
+            case CONTENUTO -> cambiaStatoApprovazioneContenuto(id, stato);
+        };
+    }
+
+    private Response<Boolean> cambiaStatoApprovazionePoi(UUID id, StatoApprovazione stato) {
+        var poi = repository.getById(id);
+        poi.setStatoApprovazione(stato);
+        repository.save(poi);
+        return ResponseFactory.createFromResult(true);
+    }
+
+    private Response<Boolean> cambiaStatoApprovazioneContenuto(UUID id, StatoApprovazione stato) {
+        var contenuto = contenutoRepository.getById(id);
+        contenuto.setStatoApprovazione(stato);
+        contenutoRepository.save(contenuto);
+        return ResponseFactory.createFromResult(true);
+    }
+
+    private ArrayList<InfoDaApprovareDto> getInfoDaApprovareDto(Utente utente) {
+        var result = new ArrayList<InfoDaApprovareDto>();
+        // mi prendo tutti i poi di quel comune
+        var comune = utente.getComune();
+        var pois = comune.getPuntiInteresse();
+        for(var poi : pois) {
+            if(poi.getStatoApprovazione() == StatoApprovazione.DaApprovare) {
+                result.add(new InfoDaApprovareDto(poi.getNome(), poi.getId(), poi.getCreatore().getEmail(), TipoInformazione.POI));
+            }
+            for(var contenuto : poi.getContenuti().stream().filter(x -> x.getStatoApprovazione() == StatoApprovazione.DaApprovare).toList()) {
+                result.add(new InfoDaApprovareDto("", contenuto.getId(), contenuto.getCreatore().getEmail(), TipoInformazione.CONTENUTO));
+            }
+        }
+        return result;
+    }
+
+
 }

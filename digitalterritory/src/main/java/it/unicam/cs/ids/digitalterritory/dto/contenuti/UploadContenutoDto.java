@@ -5,5 +5,5 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
-public record UploadContenutoDto(TipoContenuto tipoContenuto, String textContent, MultipartFile fileContent, UUID poiId) {
+public record UploadContenutoDto(TipoContenuto tipoContenuto, String textContent, String fileContent, UUID poiId, boolean isPrivato) {
 }

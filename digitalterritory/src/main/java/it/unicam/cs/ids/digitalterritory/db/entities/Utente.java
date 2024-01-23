@@ -41,4 +41,6 @@ public class Utente {
     private List<Itinerario> itinerari;
     @OneToMany(mappedBy = "creatore")
     private List<Contenuto> contenuti;
+    @OneToMany(mappedBy = "creatore")
+    private List<PuntoInteresse> puntiInteresse;
 }
