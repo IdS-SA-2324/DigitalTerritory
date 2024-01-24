@@ -5,6 +5,8 @@ import it.unicam.cs.ids.digitalterritory.db.entities.SegnalazionePoi;
 import it.unicam.cs.ids.digitalterritory.db.entities.Utente;
 import it.unicam.cs.ids.digitalterritory.db.repositories.*;
 import it.unicam.cs.ids.digitalterritory.dto.Response;
+import it.unicam.cs.ids.digitalterritory.dto.contenuti.ContenutoDto;
+import it.unicam.cs.ids.digitalterritory.dto.segnalazioni.SegnalazioneDto;
 import it.unicam.cs.ids.digitalterritory.dto.segnalazioni.UploadSegnalazioneDto;
 import it.unicam.cs.ids.digitalterritory.security.JwtGenerator;
 import it.unicam.cs.ids.digitalterritory.utils.ResponseFactory;
@@ -12,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class SegnalazioniService {
@@ -38,6 +42,28 @@ public class SegnalazioniService {
             case POI -> inserisciSegnalazionePoi(dto, token);
             case CONTENUTO -> inserisciSegnalazioneContenuto(dto, token);
         };
+    }
+
+    public Response<List<SegnalazioneDto>> visualizzaSegnalazioniPoi(UUID poiId) {
+        var poi = poiRepository.getById(poiId);
+        if(poi == null) {
+            return ResponseFactory.createFromResult(new ArrayList<>(), false, "Il punto di interesse indicato non esiste");
+        }
+        var segnalazioni = poi.getSegnalazioni()
+                .stream().map(x -> new SegnalazioneDto(x.getDescrizione(), x.getUtente() != null ? x.getUtente().getEmail() : ""))
+                .toList();
+        return ResponseFactory.createFromResult(segnalazioni);
+    }
+
+    public Response<List<SegnalazioneDto>> visualizzaSegnalazioniContenuto(UUID contenutoId) {
+        var contenuto = contenutoRepository.getById(contenutoId);
+        if(contenuto == null) {
+            return ResponseFactory.createFromResult(new ArrayList<>(), false, "Il punto di interesse indicato non esiste");
+        }
+        var segnalazioni = contenuto.getSegnalazioni()
+                .stream().map(x -> new SegnalazioneDto(x.getDescrizione(), x.getUtente() != null ? x.getUtente().getEmail() : ""))
+                .toList();
+        return ResponseFactory.createFromResult(segnalazioni);
     }
 
     private Response<Boolean> inserisciSegnalazioneContenuto(UploadSegnalazioneDto dto, String token) {

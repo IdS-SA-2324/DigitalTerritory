@@ -17,8 +17,13 @@ public class Itinerario {
 
     @Column
     private String nome;
+    @Column
+    private boolean isPrivato;
     @ManyToMany
     private List<PuntoInteresse> puntiInteresse;
+    @ManyToOne
+    @JoinColumn(name = "comune_id", nullable = false)
+    private Comune comune;
     @ManyToOne
     @JoinColumn(name = "creatore_id", nullable = false)
     private Utente creatore;
