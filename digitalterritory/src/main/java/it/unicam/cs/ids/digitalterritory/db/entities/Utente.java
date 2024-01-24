@@ -30,8 +30,8 @@ public class Utente {
     @Column
     @Enumerated(EnumType.STRING)
     private TipoUtente tipoUtente;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "comune_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "comune_id")
     private Comune comune;
     @OneToMany(mappedBy = "utente")
     private List<SegnalazionePoi> segnalazioniPoi;

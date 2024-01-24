@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Blob;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -36,5 +37,7 @@ public class Contenuto {
 
     @Column
     private boolean isPrivato;
+    @OneToMany(mappedBy = "contenuto")
+    private List<SegnalazioneContenuto> segnalazioni;
 
 }

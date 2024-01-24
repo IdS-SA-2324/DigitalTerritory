@@ -20,8 +20,8 @@ public class Comune {
     private String regione;
     @Column
     private String placeOsmId;
-    @OneToOne(mappedBy = "comune")
-    private Utente curatore;
+    @OneToMany(mappedBy = "comune")
+    private List<Utente> utenti;
 
     @OneToMany(mappedBy = "comune",fetch = FetchType.EAGER)
     private List<PuntoInteresse> puntiInteresse;

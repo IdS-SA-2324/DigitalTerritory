@@ -1,5 +1,8 @@
 package it.unicam.cs.ids.digitalterritory.apicontroller;
 
+import it.unicam.cs.ids.digitalterritory.db.enums.TipoUtente;
+import it.unicam.cs.ids.digitalterritory.db.repositories.ComuneRepository;
+import it.unicam.cs.ids.digitalterritory.db.repositories.UtenteRepository;
 import it.unicam.cs.ids.digitalterritory.dto.OsmResponse;
 import it.unicam.cs.ids.digitalterritory.dto.osmdetails.OsmDetails;
 import it.unicam.cs.ids.digitalterritory.security.JwtGenerator;
@@ -12,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
 @RestController
 @RequestMapping("/api/tests")
 public class TestController {
@@ -23,8 +29,7 @@ public class TestController {
     @RequestMapping(value = "/test", method = RequestMethod.GET)
     public ResponseEntity<Object> test() {
         try {
-            OsmResponse osm = osmService.getComuneByNomeRegione("Montone", "Perugia");
-            return new ResponseEntity<>(osm, HttpStatus.OK);
+            return new ResponseEntity<>(true, HttpStatus.OK);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

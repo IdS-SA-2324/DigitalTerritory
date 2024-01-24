@@ -54,7 +54,9 @@ public class UserService {
             // salvo l'utente
             var saved = utenteRepository.save(utente);
             Comune comune = new Comune();
-            comune.setCuratore(saved);
+            var utenti = new ArrayList<Utente>();
+            utenti.add(saved);
+            comune.setUtenti(utenti);
             comune.setNome(comuneOsm.getName());
             comune.setRegione(request.nomeRegione());
             comune.setPlaceOsmId(String.format("%s%d", comuneOsm.getOsmType().toUpperCase().charAt(0), comuneOsm.getPlaceId()));
