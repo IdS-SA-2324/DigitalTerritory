@@ -27,6 +27,8 @@ public class Comune {
     private List<PuntoInteresse> puntiInteresse;
     @OneToMany(mappedBy = "comune",fetch = FetchType.EAGER)
     private List<Itinerario> itinerari;
+    @OneToMany(mappedBy = "comune", fetch = FetchType.EAGER)
+    private List<Contest> contests;
 
     public Comune() {}
 }

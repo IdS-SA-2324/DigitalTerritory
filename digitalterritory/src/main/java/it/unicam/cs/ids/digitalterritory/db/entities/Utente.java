@@ -43,4 +43,6 @@ public class Utente {
     private List<Contenuto> contenuti;
     @OneToMany(mappedBy = "creatore")
     private List<PuntoInteresse> puntiInteresse;
+    @ManyToMany
+    private List<Contest> contest;
 }

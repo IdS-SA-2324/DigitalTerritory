@@ -5,16 +5,14 @@ import it.unicam.cs.ids.digitalterritory.db.entities.Contest;
 import it.unicam.cs.ids.digitalterritory.db.repositories.ContestRepository;
 import it.unicam.cs.ids.digitalterritory.db.repositories.UtenteRepository;
 import it.unicam.cs.ids.digitalterritory.dto.Response;
-import it.unicam.cs.ids.digitalterritory.dto.contest.ContestLiberoDto;
-import it.unicam.cs.ids.digitalterritory.model.Comune;
+import it.unicam.cs.ids.digitalterritory.dto.contest.ContestDto;
+import it.unicam.cs.ids.digitalterritory.services.ContestService;
+import it.unicam.cs.ids.digitalterritory.utils.ResponseFactory;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.UUID;
 
 @RestController
@@ -23,20 +21,23 @@ import java.util.UUID;
 public class ContestController {
 
     @Autowired
-    private ContestRepository repository;
-    @Autowired
-    private UtenteRepository utenteRepository;
+    private ContestService service;
 
-    @PostMapping("CreaContestLibero")
-    public ResponseEntity<Response<Boolean>> creaContestLibero(@RequestBody ContestLiberoDto dto) {
-        Contest c = new Contest();
-        c.setData(dto.data());
-        c.setNome(dto.nome());
-//        c.se
-        repository.save(c);
-        // invia inviti
-//        c.getContributori().stream().map(x -> x.getId());
+    @PostMapping("/creaContest")
+    public Response<Boolean> creaContest(@RequestBody ContestDto dto, HttpServletRequest req) {
+        try {
+            return service.creaContest(dto, req.getHeader("Authorization"));
+        } catch (Exception e) {
+            return ResponseFactory.createFromResult(false, false, e.getMessage());
+        }
+    }
 
-        return null;
+    @GetMapping("/chiudiContest/{contestId}")
+    public Response<Boolean> chiudiContest(@PathVariable UUID contestId) {
+        try {
+            return service.chiudiContest(contestId);
+        } catch (Exception e) {
+            return ResponseFactory.createFromResult(false, false, e.getMessage());
+        }
     }
 }

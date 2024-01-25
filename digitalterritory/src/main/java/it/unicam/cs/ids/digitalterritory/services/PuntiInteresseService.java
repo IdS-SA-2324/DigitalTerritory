@@ -1,14 +1,12 @@
 package it.unicam.cs.ids.digitalterritory.services;
 
 import it.unicam.cs.ids.digitalterritory.db.entities.Comune;
+import it.unicam.cs.ids.digitalterritory.db.entities.Contest;
 import it.unicam.cs.ids.digitalterritory.db.entities.PuntoInteresse;
 import it.unicam.cs.ids.digitalterritory.db.entities.Utente;
 import it.unicam.cs.ids.digitalterritory.db.enums.StatoApprovazione;
 import it.unicam.cs.ids.digitalterritory.db.enums.TipoUtente;
-import it.unicam.cs.ids.digitalterritory.db.repositories.ComuneRepository;
-import it.unicam.cs.ids.digitalterritory.db.repositories.ContenutoRepository;
-import it.unicam.cs.ids.digitalterritory.db.repositories.PuntoInteresseRepository;
-import it.unicam.cs.ids.digitalterritory.db.repositories.UtenteRepository;
+import it.unicam.cs.ids.digitalterritory.db.repositories.*;
 import it.unicam.cs.ids.digitalterritory.dto.Response;
 import it.unicam.cs.ids.digitalterritory.dto.contenuti.ContenutoDto;
 import it.unicam.cs.ids.digitalterritory.dto.osmdetails.OsmDetails;
@@ -34,9 +32,10 @@ public class PuntiInteresseService {
     private final UtenteRepository utenteRepository;
     private final ComuneRepository comuneRepository;
     private final ContenutoRepository contenutoRepository;
+    private final ContestRepository contestRepository;
 
     @Autowired
-    public PuntiInteresseService(PuntoInteresseRepository repository, OsmService osmService, UserTypeCheck userTypeChecker, JwtGenerator jwt, UtenteRepository utenteRepository, ComuneRepository comuneRepository, ContenutoRepository contenutoRepository) {
+    public PuntiInteresseService(PuntoInteresseRepository repository, OsmService osmService, UserTypeCheck userTypeChecker, JwtGenerator jwt, UtenteRepository utenteRepository, ComuneRepository comuneRepository, ContenutoRepository contenutoRepository, ContestRepository contestRepository) {
         this.repository = repository;
         this.osmService = osmService;
         this.userTypeChecker = userTypeChecker;
@@ -44,6 +43,7 @@ public class PuntiInteresseService {
         this.utenteRepository = utenteRepository;
         this.comuneRepository = comuneRepository;
         this.contenutoRepository = contenutoRepository;
+        this.contestRepository = contestRepository;
     }
 
 
@@ -69,7 +69,7 @@ public class PuntiInteresseService {
         comuneRepository.save(comune);
     }
 
-    private void salvaPoi(Comune comune, PuntoInteresseDto dto, Utente user) {
+    private void salvaPoi(Comune comune, PuntoInteresseDto dto, Utente user) throws Exception {
         PuntoInteresse poi = new PuntoInteresse();
         poi.setComune(comune);
         poi.setNome(dto.nome());
@@ -77,8 +77,29 @@ public class PuntiInteresseService {
         poi.setTipologia(dto.tipologia());
         // setto lo stato in base al tipo utente
         poi.setStatoApprovazione(user.getTipoUtente() == TipoUtente.Contributor ? StatoApprovazione.DaApprovare : StatoApprovazione.Approvato);
-        this.addPoiToComune(comune, poi);
-        repository.save(poi);
+        if(dto.contest() != UUID.fromString("00000000-0000-0000-0000-000000000000")) {
+            var contest = contestRepository.getById(dto.contest());
+            if(contest.isClosed()) {
+                throw new Exception("Il contest è chiuso");
+            }
+            if(contest.isAInviti() && contest.getInvitati().stream().anyMatch(x -> x.getId() == user.getId())) {
+                throw new Exception("Non fai parte degli invitati al contest");
+            }
+            // se fa parte del contest per forza devo metterlo da approvare
+            poi.setStatoApprovazione(StatoApprovazione.DaApprovare);
+            var pois = new ArrayList<>(contest.getPuntiInteresse());
+            pois.add(poi);
+            contest.setPuntiInteresse(pois);
+            var contestList = new ArrayList<Contest>();
+            contestList.add(contest);
+            poi.setContest(contest);
+            this.addPoiToComune(comune, poi);
+            repository.save(poi);
+            contestRepository.save(contest);
+        } else {
+            this.addPoiToComune(comune, poi);
+            repository.save(poi);
+        }
     }
 
     private OsmDetails getDetailsFromOsm(Comune comune) throws Exception {
@@ -115,7 +136,7 @@ public class PuntiInteresseService {
                             .filter(y -> y.getStatoApprovazione() == StatoApprovazione.Approvato && !y.isPrivato())
                             .map(y -> new ContenutoDto(y.getStatoApprovazione(), y.getTipoContenuto(), y.getTextContent()))
                             .toList();
-                    return new PuntoInteresseDto(x.getNome(), x.getTipologia(), Coordinate.fromString(x.getCoordinate()), contenuti);
+                    return new PuntoInteresseDto(x.getNome(), x.getTipologia(), Coordinate.fromString(x.getCoordinate()), contenuti, UUID.fromString("00000000-0000-0000-0000-000000000000"));
                 })
                 .toList();
         return ResponseFactory.createFromResult(pois);
@@ -127,6 +148,17 @@ public class PuntiInteresseService {
             return new Response<>(new ArrayList<>(), false, "Non disponi delle autorizzazioni necessarie.");
         }
         var result = this.getInfoDaApprovareDto(utente);
+        result.sort(Comparator.comparing(InfoDaApprovareDto::tipo));
+        return ResponseFactory.createFromResult(result);
+    }
+
+    public Response<List<InfoDaApprovareDto>> visualizzaInfoDaApprovareContest(String token, UUID contestId) {
+        var utente = this.getUtenteFromToken(token);
+        if(utente == null || utente.getTipoUtente() != TipoUtente.Animator) {
+            return new Response<>(new ArrayList<>(), false, "Non disponi delle autorizzazioni necessarie.");
+        }
+        var contest = contestRepository.getById(contestId);
+        var result = this.getInfoDaApprovareOfContestDto(contest);
         result.sort(Comparator.comparing(InfoDaApprovareDto::tipo));
         return ResponseFactory.createFromResult(result);
     }
@@ -152,20 +184,34 @@ public class PuntiInteresseService {
         return ResponseFactory.createFromResult(true);
     }
 
-    private ArrayList<InfoDaApprovareDto> getInfoDaApprovareDto(Utente utente) {
+    private ArrayList<InfoDaApprovareDto> getInfoDaApprovareOfContestDto(Contest contest) {
         var result = new ArrayList<InfoDaApprovareDto>();
-        // mi prendo tutti i poi di quel comune
-        var comune = utente.getComune();
-        var pois = comune.getPuntiInteresse();
+        // mi prendo i poi che fanno parte di un contest, in quanto quelli vengono approvati dall'animator
+        var pois = contest.getPuntiInteresse();
+        return getInfoDaApprovareDtos(result, pois);
+    }
+
+    private ArrayList<InfoDaApprovareDto> getInfoDaApprovareDtos(ArrayList<InfoDaApprovareDto> result, List<PuntoInteresse> pois) {
         for(var poi : pois) {
             if(poi.getStatoApprovazione() == StatoApprovazione.DaApprovare) {
-                result.add(new InfoDaApprovareDto(poi.getNome(), poi.getId(), poi.getCreatore().getEmail(), TipoInformazione.POI));
+                result.add(new InfoDaApprovareDto(poi.getNome(), poi.getId(), poi.getCreatore() != null ? poi.getCreatore().getEmail() : "", TipoInformazione.POI));
             }
             for(var contenuto : poi.getContenuti().stream().filter(x -> x.getStatoApprovazione() == StatoApprovazione.DaApprovare).toList()) {
                 result.add(new InfoDaApprovareDto("", contenuto.getId(), contenuto.getCreatore().getEmail(), TipoInformazione.CONTENUTO));
             }
         }
         return result;
+    }
+
+    private ArrayList<InfoDaApprovareDto> getInfoDaApprovareDto(Utente utente) {
+        var result = new ArrayList<InfoDaApprovareDto>();
+        // mi prendo tutti i poi di quel comune
+        var comune = utente.getComune();
+        // mi prendo i poi che non fanno parte di un contest, in quanto quelli vengono approvati dall'animator
+        var pois = comune.getPuntiInteresse()
+                .stream().filter(x -> x.getContest() == null)
+                .toList();
+        return getInfoDaApprovareDtos(result, pois);
     }
 
 

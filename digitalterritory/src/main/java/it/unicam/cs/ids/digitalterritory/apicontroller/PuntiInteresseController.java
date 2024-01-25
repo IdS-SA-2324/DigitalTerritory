@@ -70,6 +70,15 @@ public class PuntiInteresseController {
         }
     }
 
+    @GetMapping(value = "/VisualizzaInfoDaApprovareContest/{contestId}")
+    public Response<List<InfoDaApprovareDto>> visualizzaInfoDaApprovareContest(@PathVariable UUID contestId, HttpServletRequest req) {
+        try {
+            return poiService.visualizzaInfoDaApprovareContest(req.getHeader("Authorization"), contestId);
+        } catch (Exception e) {
+            return ResponseFactory.createFromResult(null, false, "C'è stato un errore. Riprova");
+        }
+    }
+
     @PostMapping(value = "/CambiaStatoValutazione/{id}/{stato}/{tipo}")
     public Response<Boolean> cambiaStatoValutazione(@PathVariable UUID id, @PathVariable StatoApprovazione stato, @PathVariable TipoInformazione tipo) {
         try {

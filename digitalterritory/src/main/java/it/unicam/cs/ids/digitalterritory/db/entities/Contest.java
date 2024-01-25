@@ -24,6 +24,13 @@ public class Contest {
     private String obiettivo;
     @Column
     private boolean isClosed;
+    @Column
+    private boolean isAInviti;
+    @ManyToOne
+    @JoinColumn(name = "comune_id", nullable = true)
+    private Comune comune;
     @OneToMany(mappedBy = "contest")
     private List<PuntoInteresse> puntiInteresse;
+    @ManyToMany
+    private List<Utente> invitati;
 }
