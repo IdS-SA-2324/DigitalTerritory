@@ -9,6 +9,7 @@ import it.unicam.cs.ids.digitalterritory.dto.Response;
 import it.unicam.cs.ids.digitalterritory.dto.utenti.AbilitaComuneCuratoreDto;
 import it.unicam.cs.ids.digitalterritory.security.JwtGenerator;
 import it.unicam.cs.ids.digitalterritory.services.UserService;
+import it.unicam.cs.ids.digitalterritory.utils.UserTypeCheck;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,28 +28,16 @@ public class UtentiController {
     private JwtGenerator jwt;
     @Autowired
     private UtenteRepository utenteRepository;
+    @Autowired
+    private UserTypeCheck userTypeChecker;
 
     @PostMapping("abilitaComuneCuratore")
     @Operation(summary = "Metodo per abilitare un curatore e un comune")
     public ResponseEntity<Response<Boolean>> abilitaComuneCuratore(@RequestBody AbilitaComuneCuratoreDto dto, HttpServletRequest request) {
-        if(isUserType(request.getHeader("Authorization"), TipoUtente.ADMIN)) {
+        if(userTypeChecker.isUserType(request.getHeader("Authorization"), TipoUtente.ADMIN)) {
             Response<Boolean> result = service.abilitaComuneCuratore(dto);
             return new ResponseEntity<>(result, HttpStatus.OK);
         }
         return new ResponseEntity<>(new Response<>(false, false, "Devi essere un admin"), HttpStatus.OK);
     }
-
-
-    private boolean isUserType(String token, TipoUtente tipoUtente){
-        if(token != null && token.startsWith("Bearer ")) {
-            String jwtToken = token.substring(7);
-            String email = jwt.getEmailFromJwt(jwtToken);
-            Optional<Utente> utente = utenteRepository.findByEmail(email);
-            if(utente.isPresent()) {
-                return utente.get().getTipoUtente() == tipoUtente;
-            }
-        }
-        return false;
-    }
-
 }

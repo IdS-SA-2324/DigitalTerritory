@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -23,6 +24,13 @@ public class Contest {
     private String obiettivo;
     @Column
     private boolean isClosed;
+    @Column
+    private boolean isAInviti;
+    @ManyToOne
+    @JoinColumn(name = "comune_id", nullable = true)
+    private Comune comune;
     @OneToMany(mappedBy = "contest")
-    private Set<PuntoInteresse> puntiInteresse;
+    private List<PuntoInteresse> puntiInteresse;
+    @ManyToMany
+    private List<Utente> invitati;
 }

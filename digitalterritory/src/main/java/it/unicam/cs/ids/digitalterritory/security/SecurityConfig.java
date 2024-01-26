@@ -50,6 +50,8 @@ public class SecurityConfig {
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/tests/**").permitAll()
+                        .requestMatchers("/api/puntiinteresse/VisualizzaPuntiInteresse/**").permitAll()
+                        .requestMatchers("/api/segnalazioni/inviaSegnalazione").permitAll()
                         .anyRequest().authenticated()
                 );
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

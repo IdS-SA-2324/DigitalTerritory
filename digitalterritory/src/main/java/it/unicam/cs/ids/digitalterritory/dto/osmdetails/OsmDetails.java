@@ -2,6 +2,7 @@ package it.unicam.cs.ids.digitalterritory.dto.osmdetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.unicam.cs.ids.digitalterritory.dto.Geojson;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ public class OsmDetails {
     private Geometry centroid;
 
     @JsonProperty("geometry")
-    private Geometry geometry;
+    private Geojson geometry;
 
     @JsonProperty("icon")
     private String icon;

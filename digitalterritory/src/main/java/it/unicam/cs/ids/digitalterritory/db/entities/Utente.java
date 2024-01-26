@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 @NoArgsConstructor
@@ -29,13 +30,19 @@ public class Utente {
     @Column
     @Enumerated(EnumType.STRING)
     private TipoUtente tipoUtente;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "comune_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "comune_id")
     private Comune comune;
     @OneToMany(mappedBy = "utente")
-    private Set<SegnalazionePoi> segnalazioniPoi;
+    private List<SegnalazionePoi> segnalazioniPoi;
     @OneToMany(mappedBy = "utente")
-    private Set<SegnalazioneContenuto> segnalazioniContenuti;
+    private List<SegnalazioneContenuto> segnalazioniContenuti;
     @OneToMany(mappedBy = "creatore")
-    private Set<Itinerario> itinerari;
+    private List<Itinerario> itinerari;
+    @OneToMany(mappedBy = "creatore")
+    private List<Contenuto> contenuti;
+    @OneToMany(mappedBy = "creatore")
+    private List<PuntoInteresse> puntiInteresse;
+    @ManyToMany
+    private List<Contest> contest;
 }

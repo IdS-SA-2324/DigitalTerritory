@@ -15,7 +15,9 @@ public class PointContained {
     private ArrayList<Double> polygonX= new ArrayList<>();
     private ArrayList<Double> polygonY= new ArrayList<>();
 
-    public PointContained(Coordinate coordinate, List<ArrayList<Double>> listVertici) {
+
+    public PointContained() {}
+    public PointContained(Coordinate coordinate, List<List<Double>> listVertici) {
         this.coordinate = coordinate;
 
         for (int i = 0; i < listVertici.size(); i++) {
@@ -25,6 +27,35 @@ public class PointContained {
 
         }
 
+    }
+
+    public boolean isInsideBoundingBox(double x, double y, List<List<List<Double>>> boundingBox) {
+        for (List<List<Double>> face: boundingBox) {
+            if(isPointInsideFace(x, y, face)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isPointInsideFace(double x, double y, List<List<Double>> face) {
+        int count = 0;
+        int numVertices = face.size();
+        for (int i = 0; i < numVertices; i++) {
+            List<Double> vertexA = face.get(i);
+            List<Double> vertexB = face.get((i + 1) % numVertices);
+
+            double vertexAX = vertexA.get(0);
+            double vertexAY = vertexA.get(1);
+            double vertexBX = vertexB.get(0);
+            double vertexBY = vertexB.get(1);
+
+            if ((vertexAY <= y && y < vertexBY || vertexBY <= y && y < vertexAY) &&
+                    x < (vertexBX - vertexAX) * (y - vertexAY) / (vertexBY - vertexAY) + vertexAX) {
+                count++;
+            }
+        }
+        return count % 2 == 1;
     }
 
 

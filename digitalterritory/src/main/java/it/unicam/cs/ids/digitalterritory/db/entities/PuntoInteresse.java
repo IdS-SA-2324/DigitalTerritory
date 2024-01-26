@@ -1,9 +1,12 @@
 package it.unicam.cs.ids.digitalterritory.db.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import it.unicam.cs.ids.digitalterritory.db.enums.StatoApprovazione;
+import it.unicam.cs.ids.digitalterritory.db.enums.TipologiaTipoInteresse;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,7 +20,8 @@ public class PuntoInteresse {
     @Column
     private String nome;
     @Column
-    private int tipologia;
+    @Enumerated(EnumType.STRING)
+    private TipologiaTipoInteresse tipologia;
     @Column
     private String coordinate;
     @Column
@@ -27,15 +31,18 @@ public class PuntoInteresse {
     @JoinColumn(name = "comune_id", nullable = false)
     private Comune comune;
 
+    @OneToMany(mappedBy = "poi",fetch = FetchType.EAGER)
+    private List<Contenuto> contenuti;
     @OneToMany(mappedBy = "poi")
-    private Set<Contenuto> contenuti;
-    @OneToMany(mappedBy = "poi")
-    private Set<SegnalazionePoi> segnalazioni;
+    private List<SegnalazionePoi> segnalazioni;
     @ManyToMany
-    private Set<Itinerario> itinerari;
+    private List<Itinerario> itinerari;
     @ManyToOne
     @JoinColumn(name = "contest_id", nullable = true)
     private Contest contest;
-
+    @ManyToOne
+    @JoinColumn(name = "creatore_id", nullable = true)
+    private Utente creatore;
+    
     public PuntoInteresse() {}
 }
