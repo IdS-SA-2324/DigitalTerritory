@@ -2,6 +2,7 @@ package it.unicam.cs.ids.digitalterritory.utils;
 
 import it.unicam.cs.ids.digitalterritory.utils.Coordinate;
 
+import java.util.List;
 import java.util.UUID;
 
 public class PuntoInteresse {
@@ -11,6 +12,8 @@ public class PuntoInteresse {
     private int tipologia;
 
     private Coordinate coordinate;
+
+    private List<Object> multimedia;
 
 
     public PuntoInteresse(String nome, int tipologia, Coordinate coordinate){
@@ -45,5 +48,9 @@ public class PuntoInteresse {
 
     public void setCoordinate(Coordinate coordinate) {
         this.coordinate = coordinate;
+    }
+
+    public void addMultimedia(Object object){
+        this.multimedia.add(object);
     }
 }
